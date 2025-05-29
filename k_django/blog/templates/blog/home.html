@@ -1,0 +1,68 @@
+{% extends "blog/base.html" %}
+
+{% block title %} Blog Posts - 'TheBlogger{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <form method="GET" action="{% url 'search_users' %}" class="d-flex mb-4 align-items-center" style="gap: 10px; position: relative; width: 95%;">
+    
+        <!-- Search bar container (takes most width) -->
+        <div style="position: relative; width: 95%;">
+            <input type="text" id="userSearchInput" name="q" placeholder="Search users..." class="form-control">
+            <ul id="userSuggestions" class="list-group position-absolute w-100 mt-1" style="z-index: 1000; display: none;"></ul>
+        </div>
+    
+        <!-- Buttons slightly aligned to the right of the bar -->
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a href="{% url 'add_post' %}" class="btn btn-primary">+</a>
+    </form>
+{% endif %}
+
+
+    <script>
+    $(document).ready(function () {
+        $('#userSearchInput').keyup(function () {
+            var query = $(this).val();
+            if (query.length > 0) {
+                $.ajax({
+                    url: '/users/autocomplete/',
+                    data: {
+                        'term': query
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        var suggestions = $('#userSuggestions');
+                        suggestions.empty();
+                        if (data.length > 0) {
+                            $.each(data, function (index, username) {
+                                suggestions.append('<li class="list-group-item">' + username + '</li>');
+                            });
+                            suggestions.show();
+                        } else {
+                            suggestions.hide();
+                        }
+                    }
+                });
+            } else {
+                $('#userSuggestions').hide();
+            }
+        });
+
+        $(document).on('click', '#userSuggestions li', function () {
+            $('#userSearchInput').val($(this).text());
+            $('#userSuggestions').hide();
+        });
+    });
+    </script>
+
+
+    <h1 class="mt-4 text-center" id="latestPostsHeading"> Blog Posts</h1>
+
+    <div class="container">
+        <div class="row" id="postContainer">
+            {% include 'blog/filtered_posts.html' with page_obj=page_obj %}
+        </div>
+    </div>
+
+{% endblock %}

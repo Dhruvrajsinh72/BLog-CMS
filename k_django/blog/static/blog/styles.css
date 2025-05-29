@@ -1,0 +1,381 @@
+/* ==============================
+General Styles with Animation & Transition
+============================== */
+body {
+    background-color: #f5f7fa;
+    color: #333;
+    font-family: "Poppins", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.8;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+
+    /* Smooth transition for background and color changes */
+    transition: background-color 0.5s ease-in-out, color 0.3s ease-in-out;
+
+    /* Page fade-in effect */
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Keyframe Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Smooth hover effects for links */
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+}
+
+a:hover {
+    color: #0056b3;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-family: Verdana, sans-serif;
+    text-align: center;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+h3 {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+/* ==============================  
+Navbar & Header  
+   ============================== */  
+.navbar {  
+    position: fixed;  
+    top: 0;  
+    width: 100%;  
+    background: #333;  
+    padding: 15px 0;  
+    display: flex;  
+    justify-content: center;  
+    z-index: 1000;  
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;  
+}
+
+/*Navbar Shadow Effect on Scroll
+window.onscroll = function() 
+{
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) 
+    {
+        navbar.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    } 
+    else {
+        navbar.style.boxShadow = "none";
+    }
+}
+*/
+
+/* Navbar Links */
+.navbar a {  
+    color: white;  
+    text-decoration: none;  
+    padding: 9px 30px;  
+    font-size: 1rem;  
+    font-weight: 500;  
+    position: relative;  
+    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease-in-out;  
+}
+
+/* Underline Hover Effect */
+.navbar a::after {
+    content: "";  
+    position: absolute;  
+    left: 50%;  
+    bottom: -5px;  
+    width: 0;  
+    height: 2px;  
+    background: white;  
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out;  
+}
+
+.navbar a:hover::after {  
+    width: 100%;  
+    left: 0;  
+}
+
+/* Smooth Hover Effect */
+.navbar a:hover {  
+    background: rgba(255, 255, 255, 0.2);  
+    border-radius: 5px;  
+    transform: scale(1.05);  
+}
+
+/* Navbar Fade-in Animation */
+@keyframes fadeInDown {  
+    from {  
+        opacity: 0;  
+        transform: translateY(-20px);  
+    }  
+    to {  
+        opacity: 1;  
+        transform: translateY(0);  
+    }  
+}
+
+.navbar {  
+    animation: fadeInDown 0.6s ease-in-out;  
+}
+
+
+/* ==============================  
+Blog Post Styling  
+============================== */
+.posts-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 1100px;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+/* Fade-in Animation for Posts */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Post Card */
+.post-container {
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    position: relative;
+}
+
+/* Hover Effect */
+.post-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Thumbnail */
+.thumbnail-wrapper {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom, #f4f4f4, #e0e0e0);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle Image Zoom Effect */
+.post-thumbnail {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: transform 0.4s ease-in-out;
+}
+
+.post-container:hover .post-thumbnail {
+    transform: scale(1.08);
+}
+
+/* Blog Content */
+.post-content {
+    padding: 20px;
+    font-size: 1.1rem;
+    color: #444;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Title */
+.post-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #222;
+    text-align: center;
+    margin-bottom: 10px;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Title Hover Effect */
+.post-container:hover .post-title {
+    color: #007bff;
+}
+
+/* Read More Button */
+.read-more {
+    display: block;
+    width: fit-content;
+    margin: 10px auto 0;
+    padding: 8px 15px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.read-more:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+
+/* ==============================
+Sidebar (Collapsible)
+   ============================== */
+#sidebar-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    transition: max-height 0.3s ease-in-out;
+}
+
+.sidebar-toggle {
+    width: 100%;
+    display: block;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.sidebar-toggle:hover {
+    background: #357ab8;
+}
+/* ==============================
+Forms & Inputs
+============================== */
+.form-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    font-weight: bold;
+}
+
+.form-select,
+input,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Submit Button */
+button,
+.form-button {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background: #007bff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover,
+.form-button:hover {
+   /* background: #0056b3; */
+    transform: translateY(-2px);
+}
+
+.uniform-thumbnail {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.btn i {
+    transition: transform 0.2s ease;
+}
+
+.btn:hover i {
+    transform: scale(1.2);
+}
+
+.icon-btn {
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
+}
+
+.icon-btn i {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover i {
+    transform: scale(1.2);
+    color: #dc3545; /* Reddish hover for like, adjust as needed */
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}

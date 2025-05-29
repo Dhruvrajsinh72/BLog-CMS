@@ -1,0 +1,52 @@
+{% extends "blog/base.html" %}
+{% block title %}Earning List - TheBlogger{% endblock %}
+{% block content %}
+  <style>
+    h5#earning-title{
+      color:#0D6EFD;
+    }
+
+    #earning-link{
+      color:#0D6EFD;
+    }
+        #earning-link:hover{
+      color:white;
+    }
+  </style>
+  <h1> 🪙 Earning Opportunities</h1>
+
+  <div class="row row-cols-5 row-cols-md-1 g-4">
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="shadow-lg card-body d-flex flex-column justify-content-between p-3 mb-1 rounded">
+          <div>
+            <h5 id="earning-title" class="fw-semibold" class=tit >Getting your blog ready to show ads</h5>
+            <p class="card-text text-muted">AdSense is reviewing your site. For some publishers the activation process can be as quick as a day, and for others it can take several weeks. <br> Your AdSense account is connected, but AdSense is reviewing your blog to make sure it's ready to show ads. Review can be as quick as a day, but for some publishers it can take several weeks.</p>
+          </div>
+          <div class="text-end" >
+            <center>
+              <a id="earning-link" href="https://adsense.google.com" class="btn btn-outline-primary btn-sm rounded-pill" target="_blank">
+                  GO TO ADSENSE
+              </a>
+            <center>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<br>
+  <div class="row row-cols-5 row-cols-md-1 g-4">
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="shadow-lg card-body d-flex flex-column justify-content-between p-3 mb-1 rounded">
+          <div>
+            <h5 id="earning-title" class="fw-semibold" class=tit >Control how ads are shown on your blog</h5>
+            <p class="card-text text-muted">Auto ads <br> Auto ads might not work well with the current theme. Please check if ads are shown as intended on your blog pages.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+

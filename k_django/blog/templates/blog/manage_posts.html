@@ -1,0 +1,45 @@
+{% extends "blog/base.html" %}
+{% block title %}Manage Posts - 'TheBlogger{% endblock %}
+{% block content %}
+
+<style>
+    body.dark-mode #managePostsContainer table {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode #managePostsContainer table th,
+    body.dark-mode #managePostsContainer table td {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode #managePostsContainer a {
+        color:rgb(255, 255, 255) !important;  /* Optional: make "View Post" links readable */
+    }
+
+    .swal2-popup {
+        color: black !important;
+        background-color: white !important;
+    }
+    body.dark-mode .swal2-popup {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+    }
+</style>
+
+<h1>Manage Posts</h1>
+
+<div class="text-center mb-3">
+    <a href="{% url 'add_post' %}" class="btn btn-primary">Add New Post</a>
+</div>
+
+<!--  Only this section updates via AJAX -->
+<div id="managePostsContainer">
+    <div id="managePostsTable">
+        {% include 'blog/manage_posts_list.html' %}
+    </div>
+</div>
+{% endblock %}

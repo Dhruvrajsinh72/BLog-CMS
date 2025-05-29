@@ -1,0 +1,69 @@
+{% extends "blog/base.html" %}
+
+{% block title %}About - 'TheBlogger{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-image: url('https://cdn.pixabay.com/photo/2013/06/20/13/52/world-140304_1280.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .about-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 100px 20px;
+    }
+
+    .about-card {
+        background:rgba(26, 26, 26, 0.79);
+        color: #ffffff;
+        padding: 40px;
+        border-radius: 16px;
+        max-width: 900px;
+        width: 100%;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+        text-align: center;
+    }
+
+    .about-card h1 {
+        color: rgb(255, 255, 255);
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .about-card p {
+        font-size: 17px;
+        line-height: 1.7;
+        color: #dddddd;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="about-wrapper">
+    <div class="about-card">
+        <h1>About Us</h1>
+        <br>
+        <p>
+            Welcome to the About page of our blog! Here, we share the story behind our platform, our passion for insightful content, and our commitment to delivering valuable information. Our blog is more than just a collection of articles.
+            <br><br>
+            Whether you’re here to explore thought-provoking ideas, dive into fascinating stories, or stay updated with the latest trends, we aim to provide content that informs and engages.
+            <br><br>
+            At 'TheBlogger, our vision is to cultivate a dynamic and influential online space where diverse voices converge, stories resonate, and ideas ignite meaningful conversations. We aspire to be the go-to platform for both aspiring and established bloggers, empowering them to craft compelling narratives that shape perspectives and enrich lives. Ultimately, we envision a world where everyone's unique story finds its audience and contributes to a more informed and connected global community.
+            <br><br>
+            Our mission is to provide a user-friendly, innovative, and supportive ecosystem that equips bloggers with the tools, resources, and community they need to thrive. We are dedicated to fostering a culture of creativity, collaboration, and continuous learning, enabling our users to hone their craft, expand their reach, and build sustainable online careers. We strive to connect 'TheBlogger with their ideal audiences, facilitate engaging interactions, and promote the power of authentic storytelling.
+            <br><br><br><br>
+            We are committed to the core values of:
+            <br>
+            <strong>Authenticity</strong>,
+            <strong>Community</strong> ,
+            <strong>Quality</strong>,
+            <strong>Impact</strong> .
+        </p>
+    </div>
+</div>
+{% endblock %}

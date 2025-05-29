@@ -1,0 +1,237 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block title %}Add Post - 'TheBlogger{% endblock %}
+
+{% block content %}
+
+
+<style>
+    .form-container {
+        max-width: 900px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 40px;
+        margin: 40px auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 32px;
+        color: #333;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .form-control, textarea {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        transition: all 0.3s ease;
+        background-color: #fff;
+        color: #000;
+    }
+
+    .form-control:focus {
+        border-color: rgb(46, 110, 193);
+        box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.25);
+    }
+
+    .btn-submit {
+        background: rgb(62, 98, 200);
+        color: #fff;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: bold;
+        width: 100%;
+        transition: background 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: rgb(0, 64, 255);
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        font-weight: 500;
+        color: rgb(0, 98, 255);
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    /* DARK MODE STYLES */
+    .dark-mode .form-container {
+        background: #1e1e1e;
+        box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .form-container h2,
+    .dark-mode .form-label {
+        color: #f5f5f5;
+    }
+
+    .dark-mode .form-control,
+    .dark-mode textarea {
+        background-color:rgba(255, 255, 255, 0.05);
+        color: #f5f5f5;
+        border: 1px solid #444;
+    }
+
+    .dark-mode .form-control:focus {
+        border-color: #90cdf4;
+        box-shadow: 0 0 0 0.2rem rgba(144, 205, 244, 0.25);
+    }
+
+    .dark-mode .btn-submit {
+        background: #3a8fd8;
+    }
+
+    .dark-mode .btn-submit:hover {
+        background: #1e70bf;
+    }
+
+    .dark-mode .back-link {
+        color: #90cdf4;
+    }
+</style>
+
+
+<div class="form-container" class="{% if dark_mode %}dark-mode{% endif %}">
+    <h2>📝 Create Your Blog Post</h2>
+
+    <!-- Progress Bar -->
+    <div class="progress">
+        <div class="progress-bar bg-success" id="add-post-progress" style="width: 0%; opacity:62%;"></div>
+    </div>
+
+    <!-- Post Form -->
+    <form method="POST" enctype="multipart/form-data" id="add-post-form">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+    <!-- Progress Bar -->
+    <div class="progress">
+        <div class="progress-bar bg-success" id="add-post-progress" style="width: 99%; opacity:62%;"></div>
+    </div>
+
+        <button type="submit" class="btn-submit">🚀 Publish</button>
+    </form>
+    <a href="javascript:history.back()" class="back-link">Back</a>
+</div>
+
+<script>
+    const addForm = document.getElementById('add-post-form');
+    const addProgressBar = document.getElementById('add-post-progress');
+
+    addForm.addEventListener('submit', function () {
+        addProgressBar.style.width = '0%';
+        let progress = 0;
+
+        const interval = setInterval(() => {
+            if (progress < 100) {
+                progress += 8;
+                addProgressBar.style.width = progress + '%';
+            } else {
+                clearInterval(interval);
+            }
+        }, 100);
+    });
+</script>
+
+<!-- Load TinyMCE static file -->
+<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+
+<script>
+    tinymce.init({
+            selector: 'textarea',
+            width: 820,
+            height: 400,
+            plugins:[
+                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+                'searchreplace', 'wordcount', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media',
+                'table', 'emoticons', 'template', 'codesample'
+            ],
+            toolbar: 'undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify |' +
+            'bullist numlist outdent indent | link image | print preview media fullscreen | ' +
+            'forecolor backcolor emoticons',
+            menu: {
+                favs: {title: 'menu', items: 'code visualaid | searchreplace '}
+            },
+            menubar: 'favs file edit view insert format tools table',
+        
+            /* enable title field in the Image dialog*/
+            image_title: true,
+            /* enable automatic uploads of images represented by blob or data URIs*/
+            automatic_uploads: true,
+            /*
+                URL of our upload handler (for more details check: https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_url)
+                images_upload_url: 'postAcceptor.php',
+                here we add custom filepicker only to Image dialog
+            */
+            file_picker_types: 'image',
+            /* and here's our custom image picker*/
+            file_picker_callback: (cb, value, meta) => {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+        
+                input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+        
+                const reader = new FileReader();
+                reader.addEventListener('load', () => {
+                    /*
+                    Note: Now we need to register the blob in TinyMCEs image blob
+                    registry. In the next release this part hopefully won't be
+                    necessary, as we are looking to handle it internally.
+                    */
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+        
+                    /* call the callback and populate the Title field with the file name */
+                    cb(blobInfo.blobUri(), { title: file.name });
+                });
+                reader.readAsDataURL(file);
+                });
+        
+                input.click();
+            },
+        
+            content_style: 'body{font-family:Helvetica,Arial,sans-serif; font-size:16px}'
+        });
+</script>
+
+{% endblock %}

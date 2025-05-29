@@ -1,0 +1,83 @@
+{% extends 'blog/base.html' %}
+{% block title %}Bookmark - 'TheBlogger{% endblock %}
+{% block content %}
+
+<style>
+    body.dark-mode #book-title {
+        color: #76b3f0 !important;  /* Optional: make "View Post" links readable */
+    }
+    #back-card{
+        color: #76b3f0;
+    }
+    .blog-content h1,
+    .blog-content h2,
+    .blog-content h3,
+    .blog-content p,
+    .blog-content a,
+    .blog-content span {
+        all: unset; /* removes inherited styles */
+        display: block; /* for h/p */
+        color: inherit; /* resets hyperlink color */
+        font-weight: normal; /* reset bold headings */
+    }
+
+    .blog-content a {
+        text-decoration: underline;
+        color: #007bff; /* optional, make consistent */
+    }
+
+    .blog-content h1,
+    .blog-content h2,
+    .blog-content h3 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .blog-content p {
+        margin-bottom: 0.75rem;
+        color: #444;
+    }
+
+    .blog-content a {
+        color: #007bff;
+        text-decoration: underline;
+    }
+
+</style>
+
+<div class="container py-4">
+    <h2 class="text-center mb-4 fw-bold">📌 Your Bookmark's</h2>
+
+    {% if bookmarked_posts %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for post in bookmarked_posts %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body d-flex flex-column justify-content-between" id=back-card>
+                            <div>
+                                <h5 id="book-title" class="card-title text-primary fw-semibold">{{ post.title }}</h5>
+                                <div class="blog-content">
+                                    {{ post.content|truncatewords:20|safe}}
+                                </div>
+                            </div>
+                            <div class="text-end" >
+                                <center>
+                                <a id="book-title" href="{% url 'post_detail' post.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">
+                                    Read More
+                                </a>
+                                <center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center mt-5" role="alert">
+            <i id="book-title" class="bi bi-bookmark-x-fill"></i> You haven't bookmarked any posts yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

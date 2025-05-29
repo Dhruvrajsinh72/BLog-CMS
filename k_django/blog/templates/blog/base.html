@@ -1,0 +1,1029 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}'TheBlogger{% endblock %}</title>
+    <link rel="icon" href="{% static 'blog/images/logo.png' %}" type="image/png">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.min.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <style>
+        .container-fluid {
+            max-width: 1400px;
+            margin: auto;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            top: 0;
+            left: 0;
+            transition: background-color 0.4s ease;
+        }
+        
+        body.dark-mode #particles-js {
+            background-color: #121212;
+        }
+        
+        body:not(.dark-mode) #particles-js {
+            background-color: #ffffff;
+        }
+        
+        #sidebar-content {
+            transition: all 0.3s ease;
+            max-height: 1000px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        #sidebar-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        #toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        #toggle-icon.rotate {
+            transform: rotate(180deg);
+        }
+        #toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        #toggle-icon.rotate {
+            transform: rotate(180deg);
+        }
+        .btn-outline-primary.bookmark-btn:hover {
+            background-color: rgb(4, 8, 255);
+            color: #fff;
+            border-color: rgb(0, 8, 255);
+        }
+        .btn-success.bookmark-btn {
+            background-color: #0059ff;
+            color: #fff;
+            border-color: #0059ff;
+        }
+        #scrollToTopBtn {
+            position: fixed;
+            bottom: 40px;
+            right: 30px;
+            z-index: 100;
+            background-color: #0059ff;
+            color: white;
+            border: none;
+            outline: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #scrollToTopBtn:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+        .sidebar-link {
+            position: static;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease-in-out;
+            border-radius: 5px;
+        }
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+            z-index:-1;
+        }
+        .sidebar-link::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            width: 0;
+            height: 2px;
+            background: white;
+            transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+        }
+        .sidebar-link:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        /* New styles for content wrapper */
+        #content-wrapper {
+            transition: transform 0.3s ease;
+            margin-left: 0;
+            box-sizing: border-box;
+            padding-left: 0;
+        }
+
+        #content-wrapper.sidebar-open {
+            transform: translateX(270px);
+        }
+        .input-group {
+            display: flex;
+            align-items: stretch;
+            width: 100%; /* Make sure the input-group takes full width */
+        }
+        .input-group #searchInput {
+            flex: 1;
+            border-radius: 0;
+        }
+        .input-group .btn {
+            border-radius: 0;
+        }
+        .input-group .btn:last-child {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        .input-group .form-control:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+        #searchForm {
+            width: 100%;
+        }
+
+        .navbar {
+            z-index: 1060; /* Set a z-index higher than the sidebar's */
+        }
+
+        .logo img {
+            height: 33px;
+            width: 36px;
+        }
+        
+        .site-header .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.98); /* or whatever color your navbar uses */
+        }
+
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff; /* Light by default */
+            z-index: -1; /* Always behind content */
+            transition: background-color 0.5s ease;
+        }
+
+        .dark-mode #particles-js {
+            background-color: #121212; /* Dark background */
+        }
+
+
+
+        /* Global dark background and light text */
+        body.dark-mode {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        /* Blog card styling */
+        body.dark-mode .card {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #333;
+        }
+
+        body.dark-mode .card-title,
+        body.dark-mode .card-text,
+        body.dark-mode .card-body {
+            color: #ffffff;
+        }
+
+        /* Button styling inside card */
+        body.dark-mode .card .btn-outline-primary {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+        body.dark-mode .card .btn-outline-primary:hover {
+            background-color: #ffffff;
+            color: #121212;
+        }
+
+        /* Navbar links */
+        body.dark-mode .navbar,
+        body.dark-mode .     {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .navbar .nav-link:hover {
+            color: #cccccc !important;
+        }
+
+        /* Sidebar styling */
+        body.dark-mode .sidebar {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        body.dark-mode .sidebar a {
+            color: #ffffff;
+        }
+
+        body.dark-mode .sidebar a:hover {
+            color: #dddddd;
+        }
+
+        /* Search bars & inputs */
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="search"],
+        body.dark-mode .form-control {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #555;
+        }
+
+        /* Pagination buttons */
+        body.dark-mode .pagination .page-link {
+            background-color: #1e1e1e;
+            color:#007bff;
+            border-color: #333;
+        }
+
+        body.dark-mode .pagination .page-link:hover {
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        /* Dropdowns */
+        body.dark-mode .dropdown-menu {
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+
+        /* Fixing header or card shadow */
+        body.dark-mode .card,
+        body.dark-mode .navbar,
+        body.dark-mode .sidebar {
+            box-shadow: none;
+        }
+        /* Card title and meta (author/date) text */
+        body.dark-mode .card-title,
+        body.dark-mode .card-subtitle,
+        body.dark-mode .card-text,
+        body.dark-mode small,
+        body.dark-mode .text-muted {
+            color: #ffffff !important;
+        }
+
+        /* Placeholder text in search bars */
+        body.dark-mode input::placeholder,
+        body.dark-mode .form-control::placeholder {
+            color: #cccccc;
+        }
+
+        /* Blog Posts heading */
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6,
+        body.dark-mode p {
+            color: #ffffff;
+        }
+
+        body.dark-mode a.text-dark {
+            color: #ffffff !important;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .report-container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        body.dark-mode .report-container {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+        }
+        body.dark-mode .form-control {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+        body.dark-mode .form-control:focus {
+            background-color: #2c2c2c;
+            color: #fff;
+        }
+        body.dark-mode .btn-report {
+            background-color: #ff4d4d;
+        }
+        body.dark-mode .btn-report:hover {
+            background-color: #e60000;
+        }
+        body.dark-mode .btn-cancel {
+            color: #aaa;
+        }
+        body.dark-mode .btn-cancel:hover {
+            color: #fff;
+        }
+
+        body.dark-mode h5#earning-title{
+            color:#76b3f0;
+        }
+
+        body.dark-mode #earning-link{
+            color:#76b3f0;
+        }
+        
+        .list-group-item{
+            color:rgb(255, 255, 255);
+        }
+
+        .latest-blog-toggle {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+        body.dark-mode .list-group-item{
+            background-color: #2c2c2c;
+            color: white;
+        }
+        .list-group-item{
+            color: #2c2c2c;
+        }
+
+        .latest-blog-toggle:hover {
+            transform: scale(1.05); /* Slight zoom */
+        }
+        .latest-blog-toggle:hover {
+            transform: scale(1.05);
+            background-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Chrome, Edge, and Safari */
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #1a1a1a; /* Dark track */
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: #444; /* Darker thumb */
+            border-radius: 10px;
+        }
+
+        /* Firefox */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #444 #1a1a1a;
+        }
+
+        .latest-posts-container {
+            overflow: hidden;
+            transition: height 0.4s ease;
+            height: 0;
+        }
+
+        /* Scroll container when opened */
+        .latest-posts-scrollable {
+            max-height: 200px;  /* Set based on your layout */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Stylish dark scrollbar */
+        .latest-posts-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+        .latest-posts-scrollable::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        .latest-posts-scrollable::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 10px;
+        }
+        .latest-posts-scrollable {
+            scrollbar-width: thin;
+            scrollbar-color: #444 #1a1a1a;
+        }
+
+        /* Hover effect and arrow */
+        .latest-blog-toggle {
+            transition: transform 0.2s ease-in-out;
+        }
+        .latest-blog-toggle:hover {
+            transform: scale(1.05);
+        }
+        .arrow-icon {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            margin-right: 6px;
+        }
+
+        .postv{
+            background-color: #0059ff;
+        }
+
+        @font-face {
+            font-family: "bootstrap-icons";
+            src: url("/static/fonts/bootstrap-icons.woff2") format("woff2"),
+                url("/static/fonts/bootstrap-icons.woff") format("woff");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: "Font Awesome 6 Free";
+            font-style: normal;
+            font-weight: 900;
+            font-display: block;
+            src: url("/static/fonts/fa-solid-900.woff2") format("woff2"),
+                url("/static/fonts/fa-solid-900.woff") format("woff");
+        }
+
+    </style>
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div id="particles-js"></div>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+                <div class="logo">
+                    <img src="{% static 'blog/images/logo.png' %}" alt="The Blogger Logo">
+                    <div class="logo-text">'TheBlogger</div>
+                </div>
+
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                {% if user.is_authenticated %}
+                    <button class="btn btn-outline-light me-2" id="toggleSidebarBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                {% endif %}
+                <button id="darkModeToggle" class="btn btn-secondary ms-2">🌙Dark Mode</button>
+                {% if user.is_authenticated %}
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggle">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                {% endif %}
+                <div class="collapse navbar-collapse" id="navbarToggle">
+                    <div class="navbar-nav me-auto">
+                        <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
+                        <a class="nav-item nav-link" href="{% url 'blog-about' %}">About Us</a>
+                    </div>
+                    <div class="navbar-nav">
+                        {% if user.is_authenticated %}
+                            {% if user.is_authenticated and user.is_staff %}
+                                <a class="nav-item nav-link btn btn-danger text-white align-self-center"
+                                    href="{% url 'manage_reports' %}">Manage Reports</a>
+
+                            {% endif %}
+                            <a class="nav-item nav-link" href="{% url 'manage_posts' %}">Manage Posts</a>
+                            <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
+                            <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                        
+                        {% else %}
+                            <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+        </nav>
+    </header>
+
+    <div id="content-wrapper" class="container-fluid mt-5 pt-5 px-4">  <main role="main">
+            {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div id="postContainer">
+                        {% block content %}{% endblock %}
+                    </div>
+                    {% if user.is_authenticated %}
+                        <div class="d-flex justify-content-center">
+                            <nav id="paginationContainer" class="mt-4">
+                                {% include 'blog/pagination.html' %}
+                            </nav>
+                        </div>
+                    {% endif%}
+                </div>
+            </div>
+        </main>
+    </div> 
+
+
+    {% if user.is_authenticated %}
+        {% if not hide_sidebar %}
+            <div id="sidebar"
+                class="bg-dark text-white position-fixed top-0 start-0 vh-100 shadow-lg overflow-auto px-3 py-4"
+                style="width: 270px; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1050;">
+                <button class="btn btn-sm btn-outline-light mb-4 w-100 d-flex justify-content-between align-items-center"
+                    id="closeSidebarBtn" onclick="toggleSidebar()">  <span>Sidebar</span>
+                    <i id="toggle-icon" class="fas fa-chevron-left"></i>
+                </button>
+                <h6 class="text-uppercase mb-2">Search Posts</h6>
+                <form id="searchForm" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control bg-secondary border-0 text-white"
+                            placeholder="Keywords of posts...">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+                <h6 class="text-uppercase mb-2">Filter by Author</h6>
+                <select id="authorSelect" class="form-select bg-secondary border-0 text-white mb-3">
+                    <option value="">All Authors</option>
+                    {% for author in authors %}
+                    <option value="{{ author.id }}">{{ author.username }}</option>
+                    {% empty %}
+                    <option value="">No authors available</option>
+                    {% endfor %}
+                </select>
+                <br>
+                {% if user.is_authenticated %}
+                    <div class="nav-item" class="text-uppercase mb-2">
+                        <a  href="{% url 'my_stats' %}"  class="sidebar-link d-block px-3 py-1 text-decoration-none text-white">📈 Insights</a>
+                        <br>
+                        <a class="sidebar-link d-block px-3 py-1 text-decoration-none text-white" href="{% url 'user_bookmarks' %}">🔖 Bookmarks</a>
+                        <br>
+                        <a class="sidebar-link d-block px-3 py-1 text-decoration-none text-white" href="{% url 'earning_list' %}">💲 Earning</a>
+                    </div>
+                {% endif %}
+                <br>
+                <!-- Clickable heading -->
+                <h6 id="latest-blog-toggle" class="nav-item nav-link latest-blog-toggle" style="cursor: pointer;" class="sidebar-link d-block px-3 py-1 text-decoration-none text-white">
+                    <span class="arrow-icon" class="text-uppercase mb-2">&gt;</span> &nbsp; Latest Blog's
+                </h6>
+                <div id="latest-posts-container" class="latest-posts-container">
+                    <div class="latest-posts-scrollable">
+                        <ul class="list-group list-group-flush mb-4">
+                            {% for post in latest_posts %}
+                                <li class="list-group-item bg-dark border-0 px-0 py-2">
+                                    <a href="{% url 'post_detail' pk=post.pk %}"
+                                        class="sidebar-link d-block px-3 py-1 text-decoration-none text-white">
+                                        {{ post.title }}
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li class="list-group-item bg-dark border-0 text-muted px-0">No posts available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p>&copy; 2025 DK'TheBlogger. All rights reserved.</p>
+    </footer>
+
+
+
+    <script>
+        const toggleBtn = document.getElementById("latest-blog-toggle");
+        const postContainer = document.getElementById("latest-posts-container");
+        const arrow = toggleBtn.querySelector(".arrow-icon");
+
+        let expanded = false;
+
+        toggleBtn.addEventListener("click", () => {
+            if (!expanded) {
+                const scrollHeight = postContainer.scrollHeight;
+                postContainer.style.height = scrollHeight + "px";
+                arrow.style.transform = "rotate(90deg)";
+            } else {
+                postContainer.style.height = "0px";
+                arrow.style.transform = "rotate(0deg)";
+            }
+            expanded = !expanded;
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function updatePosts(url) {
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("postContainer").innerHTML = data.html;
+                    document.getElementById("paginationContainer").innerHTML = data.pagination;
+                    if (!document.getElementById("latestPostsHeader")) {
+                        let header = document.createElement("h1");
+                        header.id = "latestPostsHeader";
+                        header.classList.add("mt-4", "text-center");
+                        header.innerText = "Latest Blog Posts";
+                        document.getElementById("postContainer").prepend(header);
+                    }
+                })
+                .catch(error => console.error("Error fetching posts:", error));
+        }
+        document.getElementById("authorSelect").addEventListener("change", function () {
+            let authorId = this.value;
+            let url = "{% url 'blog-home' %}?author=" + authorId;
+            updatePosts(url);
+        });
+        document.getElementById("searchForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            let query = document.getElementById("searchInput").value;
+            let url = "{% url 'blog-home' %}?q=" + query;
+            updatePosts(url);
+        });
+        document.addEventListener("click", function (event) {
+            if (event.target.classList.contains("pagination-link")) {
+                event.preventDefault();
+                let page = event.target.getAttribute("data-page");
+                let url = new URL(window.location.href);
+                url.searchParams.set("page", page);
+                if (document.getElementById("managePostsContainer")) {
+                    updateManagePosts(url);
+                } else if (document.getElementById("postContainer")) {
+                    updatePosts(url);
+                }
+            }
+        });
+        function updatePosts(url) {
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html && data.pagination) {
+                        document.getElementById("postContainer").innerHTML = data.html;
+                        document.getElementById("paginationContainer").innerHTML = data.pagination;
+                        let existingHeader = document.getElementById("latestPostsHeading");
+                        if (!existingHeader) {
+                            let header = document.createElement("h1");
+                            header.id = "latestPostsHeading";
+                            header.classList.add("mt-4", "text-center");
+                            header.innerText = "Blog Posts";
+                            document.getElementById("postContainer").prepend(header);
+                        }
+                    } else {
+                        console.error("Invalid JSON response:", data);
+                    }
+                })
+                .catch(error => console.error("Error fetching paginated posts:", error));
+        }
+        function updateManagePosts(url) {
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.html && data.pagination) {
+                        document.getElementById("managePostsTable").innerHTML = data.html;
+                        document.getElementById("paginationContainer").innerHTML = data.pagination;
+                    } else {
+                        console.error("Invalid JSON response:", data);
+                    }
+                })
+                .catch(error => console.error("Error fetching paginated manage posts:", error));
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        function loadParticles(isDark) {
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 70,
+                        "density": {
+                            "enable": true,
+                            "value_area": 1000
+                        }
+                    },
+                    "color": {
+                        "value": isDark ? "#ffffff" : "#000000"
+                    },
+                    "shape": {
+                        "type": "triangle",
+                        "stroke": {
+                            "width": 0,
+                            "color": isDark ? "#ffffff" : "#000000"
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.4,
+                        "random": true
+                    },
+                    "size": {
+                        "value": 6,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 145,
+                        "color": isDark ? "#ffffff" : "#000000",
+                        "opacity": 0.5,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2.1,
+                        "direction": "none",
+                        "out_mode": "bounce"
+                    }
+                },
+                "interactivity": {
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        }
+                    },
+                    "modes": {
+                        "repulse": {
+                            "distance": 100
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+        }
+
+        // Load saved theme on page load
+        const savedTheme = localStorage.getItem("theme");
+        const isDark = savedTheme === "dark";
+        if (isDark) document.body.classList.add("dark-mode");
+        loadParticles(isDark);
+
+        // Toggle dark mode and update particles
+        document.getElementById("darkModeToggle").addEventListener("click", function () {
+            const isNowDark = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", isNowDark ? "dark" : "light");
+
+            // Destroy previous particle instance
+            if (window.pJSDom && window.pJSDom.length) {
+                window.pJSDom[0].pJS.fn.vendors.destroypJS();
+                window.pJSDom = [];
+            }
+
+            // Reload particles with new color
+            loadParticles(isNowDark);
+        });
+
+        // Navbar scroll effect
+        document.addEventListener("scroll", function () {
+            const navbar = document.querySelector(".navbar");
+            if (window.scrollY > 50) {
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        });
+    </script>
+
+    <script>
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+        });
+    </script>
+    <script>
+        // LIKE BUTTON AJAX
+        $(document).on("click", ".like-btn", function () {
+            let btn = $(this);
+            let postId = btn.data("id");
+            $.ajax({
+                url: `/post/${postId}/like/`,
+                method: "POST",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) {
+                    if (response.liked) {
+                        btn.addClass("btn-danger").removeClass("btn-outline-danger");
+                    } else {
+                        btn.removeClass("btn-danger").addClass("btn-outline-danger");
+                    }
+                    btn.find(".like-count").text(response.likes_count);
+                },
+            });
+        });
+        // BOOKMARK BUTTON AJAX
+        $(document).on("click", ".bookmark-btn", function () {
+            let btn = $(this);
+            let postId = btn.data("id");
+            $.ajax({
+                url: `/toggle-bookmark/${postId}/`,
+                method: "POST",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+                success: function (response) {
+                    if (response.bookmarked) {
+                        btn
+                            .addClass("btn-success")
+                            .removeClass("btn-outline-primary")
+                            .html('<i class="bi bi-bookmark-fill fs-5 text-white"></i>');
+                    } else {
+                        btn
+                            .removeClass("btn-success")
+                            .addClass("btn-outline-primary")
+                            .html('<i class="bi bi-bookmark fs-5 text-primary"></i>');
+                    }
+                },
+            });
+        });
+        // Get CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                let cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === name + "=") {
+                        cookieValue = decodeURIComponent(
+                            cookie.substring(name.length + 1)
+                        );
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const scrollBtn = document.getElementById("scrollToTopBtn");
+            window.addEventListener("scroll", function () {
+                if (window.scrollY > 200) {
+                    scrollBtn.style.display = "flex";
+                } else {
+                    scrollBtn.style.display = "none";
+                }
+            });
+            scrollBtn.addEventListener("click", function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
+        });
+
+    </script>
+
+        <button id="scrollToTopBtn" title="Go to top">
+            <i class="fas fa-arrow-up"> </i> 
+        </button>
+
+    <script>
+        const toggleSidebarNewBtn = document.getElementById("toggleSidebarBtn");
+        const closeSidebarNewBtn = document.getElementById("closeSidebarBtn");
+        const newSidebar = document.getElementById("sidebar");
+        const newContentWrapper = document.getElementById("content-wrapper");
+        const newToggleIcon = document.getElementById('toggle-icon');
+
+    // newSidebar.style.transform = "translateX(-100%)";
+    // newContentWrapper?.classList.remove("sidebar-open");
+
+        //  Automatically open sidebar on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            newSidebar.style.transform = "translateX(0%)";
+            newContentWrapper?.classList.add("sidebar-open"); // If newContentWrapper exists
+            newToggleIcon?.classList.add('rotate'); // Optional if you want the icon to rotate too
+        });
+
+        toggleSidebarNewBtn.addEventListener("click", () => {
+            if (newSidebar.style.transform === "translateX(0%)") {
+                newSidebar.style.transform = "translateX(-100%)";
+                newContentWrapper?.classList.remove("sidebar-open");
+                newToggleIcon?.classList.remove('rotate');
+            } else {
+                newSidebar.style.transform = "translateX(0%)";
+                newContentWrapper?.classList.add("sidebar-open");
+                newToggleIcon?.classList.add('rotate');
+            }
+        });
+
+        closeSidebarNewBtn.addEventListener("click", () => {
+            newSidebar.style.transform = "translateX(-100%)";
+            newContentWrapper?.classList.remove("sidebar-open");
+            newToggleIcon?.classList.remove('rotate');
+        });
+        function toggleSidebar() {
+            if (newSidebar.style.transform === "translateX(0%)") {
+                newSidebar.style.transform = "translateX(-100%)";
+                newContentWrapper?.classList.remove("sidebar-open");
+                newToggleIcon?.classList.remove('rotate');
+            } else {
+                newSidebar.style.transform = "translateX(0%)";
+                newContentWrapper?.classList.add("sidebar-open");
+                newToggleIcon?.classList.add('rotate');
+            }
+        }
+    </script>
+
+    <script>
+        function applyThemeAndParticles() {
+            const savedTheme = localStorage.getItem("theme");
+            console.log("Applying theme:", savedTheme);
+        
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+                document.body.classList.remove("light-mode");
+        
+                // Load dark mode particles config
+                particlesJS.load('particles-js', '/static/js/particles-dark.json');
+            } else {
+                document.body.classList.remove("dark-mode");
+                document.body.classList.add("light-mode");
+        
+                // Load light mode particles config
+                particlesJS.load('particles-js', '/static/js/particles-light.json');
+            }
+        }
+        
+        // Apply on normal load
+        window.addEventListener("DOMContentLoaded", applyThemeAndParticles);
+        
+        // Apply again on browser back/forward
+        window.addEventListener("pageshow", applyThemeAndParticles);
+        </script>
+        
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('darkModeToggle');
+    
+            // Set button text based on current mode
+            if (document.body.classList.contains('dark-mode')) {
+                toggleBtn.textContent = '☀️ Light Mode';
+            } else {
+                toggleBtn.textContent = '🌙 Dark Mode';
+            }
+    
+            toggleBtn.addEventListener('click', function () {
+                // Wait a moment after toggle (assuming existing script toggles the class)
+                setTimeout(() => {
+                    if (document.body.classList.contains('dark-mode')) {
+                        toggleBtn.textContent = '☀️ Light Mode';
+                    } else {
+                        toggleBtn.textContent = '🌙 Dark Mode';
+                    }
+                }, 50); // small delay to allow class to toggle
+            });
+        });
+    </script>
+</body>
+</html>

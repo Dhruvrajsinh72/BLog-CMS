@@ -1,0 +1,199 @@
+{% extends "blog/base.html" %}
+{% block title %}Manage Report - 'TheBlogger{% endblock %}
+
+{% block content %}
+<style>
+    body.dark-mode #report-table-container table {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode #report-table-container table th,
+    body.dark-mode #report-table-container table td {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode #report-table-container #dismiss {
+        color:rgb(255, 255, 255) !important;  /* Optional: make "View Post" links readable */
+    }
+
+    body.dark-mode #report-table-container a {
+    color: rgb(97 131 234) !important;
+    }
+
+    .swal2-popup {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    body.dark-mode .swal2-popup {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+    }
+
+</style>
+<div class="container mt-4">
+    <h2 class="mb-4">User Reports</h2>
+
+    {% if reports %}
+        <div class="table-responsive" id="report-table-container">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Reported By</th>
+                        <th>Reported Post</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="report-table-body">
+                    {% for report in reports %}
+                        <tr>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.reporter.username }}</td>
+                            <td><a href="{% url 'post_detail' report.post.id %}">View Post</a></td>
+                            <td>{{ report.reason }}</td>
+                            <td>{{ report.reported_at }}</td>
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <form method="POST" action="{% url 'delete_post' report.post.pk %}?next={% url 'manage_reports' %}" class="delete-form">
+                                        {% csrf_token %}
+                                        <button type="button" class="btn btn-sm btn-danger w-100 delete-btn">Delete Post</button>
+                                    </form>
+                                    <a href="{% url 'delete_report' report.id %}" class="btn btn-sm btn-warning w-100" id="dismiss">
+                                        Dismiss Report
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center mt-3" id="pagination-controls">
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if reports.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo; First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ reports.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    {% for i in reports.paginator.page_range %}
+                        {% if reports.number == i %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% elif i > reports.number|add:'-2' and i < reports.number|add:'2' or i == 1 or i == reports.paginator.num_pages %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% elif i == reports.number|add:'-3' or i == reports.number|add:'3' %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if reports.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ reports.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ reports.paginator.num_pages }}">Last &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% else %}
+        <p>No reports available.</p>
+    {% endif %}
+</div>
+<script>
+    function loadPage(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                // Parse the response HTML
+                var newDoc = document.implementation.createHTMLDocument("new");
+                newDoc.body.innerHTML = data;
+
+                // Update the table content
+                $('#report-table-body').html(newDoc.querySelector('#report-table-body').innerHTML);
+                // Update the pagination controls
+                $('#pagination-controls').html(newDoc.querySelector('#pagination-controls').innerHTML);
+
+                // Re-attach event listeners to the new pagination links.
+                attachEventListeners();
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to load page:", status, error);
+                alert("Failed to load page. Please check your connection and try again.");
+            }
+        });
+    }
+
+    function attachEventListeners() {
+        // Attach click event to pagination links, using event delegation
+        $('#pagination-controls').off('click', 'a').on('click', 'a', function (event) {
+            event.preventDefault();
+            const url = $(this).attr('href');
+            loadPage(url);
+        });
+    }
+    // Attach event listeners when the document is ready
+    $(document).ready(function () {
+        attachEventListeners();
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success",
+            cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+    });
+
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const form = this.closest("form");
+
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Delete",
+                cancelButtonText: "Cancel",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "The post was not deleted.",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

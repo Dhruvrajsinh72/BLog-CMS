@@ -1,0 +1,97 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Login - 'TheBlogger{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-image: url('https://cdn.pixabay.com/photo/2013/06/20/13/52/world-140304_1280.jpg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 100px 20px;
+    }
+
+    .login-card {
+        background: #2c2c2c;
+        color: #fff;
+        padding: 40px;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-card h2 {
+        font-weight: 600;
+        margin-bottom: 20px;
+        color:rgb(255, 255, 255);
+    }
+
+    .login-card legend {
+        color: #00ffae;
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .login-card .btn {
+        background-color: rgb(4, 8, 255);
+        color: #fff;
+        border: none;
+        transition: background 0.3s ease;
+        font-size: 16px;
+    }
+
+    .login-card .btn:hover {
+        background-color: #0059ff;
+    }
+
+    .login-card a {
+        color: #00bfff;
+    }
+
+    .login-card a:hover {
+        text-decoration: underline;
+    }
+
+    .login-card .text-muted {
+        color: #ccc !important;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2 class="text-center">Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="text-center">Access Your Account</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group text-center mt-4">
+                <button class="btn btn-block" type="submit">Login</button>
+            </div>
+
+            <!-- Forgot Password Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            </div>
+        </form>
+
+        <div class="border-top pt-3 text-center mt-4">
+            <small class="text-muted">
+                Don't have an account? 
+                <a href="{% url 'register' %}">Register here</a>.
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

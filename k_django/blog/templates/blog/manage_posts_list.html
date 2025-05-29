@@ -1,0 +1,85 @@
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Date Published</th>
+            <th>Verify</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in page_obj %}
+        <tr>
+            <td>{{ post.title }}</td>
+            <td>{{ post.author.username }}</td>
+            <td>{{ post.created_at|date:"M d, Y" }}</td>
+            <td>
+                {% if post.verified %}
+                    <span class="badge postv">Verified</span>
+                {% else %}
+                    <span class="badge bg-danger">Unverified</span>
+                {% endif %}
+            </td>
+            <td>
+                <span class="badge {% if post.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ post.status|title }}
+                </span>
+            </td>
+            <td>
+                {% if request.user == post.author or request.user.is_superuser %}
+                    <a href="{% url 'update_post' post.pk %}" class="btn btn-sm btn-warning" id="edit">Edit</a>
+                    <form action="{% url 'delete_post' post.pk %}" method="post" class="d-inline delete-form">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-sm btn-danger delete-btn">Delete</button>
+                    </form>
+                {% else %}
+                    <span class="text-muted">No Actions</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center text-muted">No posts available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-danger"
+        },
+        buttonsStyling: false
+    });
+
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function (e) {
+        const form = this.closest("form");
+
+        swalWithBootstrapButtons.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+            cancelButtonText: "Cancel",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+            form.submit(); // Submit the form manually
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+            swalWithBootstrapButtons.fire({
+                title: "Cancelled",
+                text: "Your post is safe 😊",
+                icon: "error"
+            });
+            }
+        });
+        });
+    });
+</script>

@@ -1,0 +1,310 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Profile - 'TheBlogger{% endblock %}
+{% block content %}
+
+<style>
+    .modal-content {
+        margin: 153px;
+    }
+    .modal-backdrop.fade {
+        opacity: 0;
+        position: relative;
+    }
+
+    #follow{
+        color:black;
+    }
+
+    body.dark-mode .modal-header {
+            background-color:rgba(0, 0, 0, 0.89);
+            color: #e0e0e0;
+        }
+    body.dark-mode #follow {
+            color : white;
+        }
+    body.dark-mode .modal-body {
+        background-color:rgba(0, 0, 0, 0.89);
+        color: #e0e0e0;
+    }
+    body.dark-mode .btn-close {
+            background-color:rgba(224, 224, 224, 0.6);
+    }
+
+        body.dark-mode .swal2-popup {
+        background-color: #1e1e1e !important;
+        color: #ffffff !important;
+    }
+</style>
+
+
+<div class="user-profile container mt-4">
+    <form id="profile-update-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <!-- User Image Section -->
+            <div class="col-md-4 text-center">
+                <div class="user-img-wrapper">
+                    <img id="profile-img" src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail rounded-circle" style="width: 250px; height: 250px; object-fit: cover;">
+                </div>
+
+                <!-- Upload Image -->
+                <form id="profile-update-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" id="profile_picture" name="profile_picture" class="form-control mt-2">
+
+                    {% if user.profile.profile_picture and user.profile.profile_picture.name != 'default-profile.jpg' %}
+                        <button type="button" id="remove-profile-btn" class="btn btn-danger mt-2">Remove Profile</button>
+                    {% endif %}
+                </form>
+
+
+                <!-- Followers and Following Count Buttons -->
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#followersModal">
+                        <strong>{{ followers|length }}</strong> Followers
+                    </button>
+
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#followingModal">
+                        <strong>{{ following|length }}</strong> Following
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- User Details Section -->
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label><strong>Username:</strong></label>
+                    <input type="text" class="form-control" name="username" value="{{ user.username }}" readonly>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label><strong>First Name:</strong></label>
+                    <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label><strong>Last Name:</strong></label>
+                    <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label><strong>Email Address:</strong></label>
+                    <input type="email" class="form-control" name="email" value="{{ user.email }}">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label><strong>Bio:</strong></label>
+                    <textarea class="form-control" name="bio">{{ user.profile.bio }}</textarea>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success" id="update-profile-btn">Update Profile</button>
+                    <a class="btn btn-info ms-2" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Common SweetAlert Alert
+    function showAutoCloseAlert() {
+        let timerInterval;
+        Swal.fire({
+            title: "Success!",
+            html: "Auto closing in <b></b> milliseconds.",
+            timer: 2000,
+            timerProgressBar: true,
+            icon: "success",
+            didOpen: () => {
+                Swal.showLoading();
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        });
+    }
+
+    // Update profile form
+    document.getElementById("profile-update-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent page reload
+
+        let formData = new FormData(this);
+
+        fetch("{% url 'profile_update' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAutoCloseAlert();  // ✅ SweetAlert
+                if (data.profile_picture_url) {
+                    document.getElementById("profile-img").src = data.profile_picture_url;
+                }
+            } else {
+                Swal.fire("Oops!", "Failed to update profile. Please try again.", "error");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire("Error!", "Something went wrong.", "error");
+        });
+    });
+
+    // Remove profile picture
+    document.getElementById("remove-profile-btn")?.addEventListener("click", function() {
+
+        fetch("{% url 'profile_update' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ remove_profile_picture: true })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("profile-img").src = data.profile_picture_url;
+                showAutoCloseAlert();  // ✅ SweetAlert
+            } else {
+                Swal.fire("Oops!", "Failed to remove profile picture.", "error");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire("Error!", "Something went wrong.", "error");
+        });
+    });
+</script>
+
+
+
+<hr class="mt-5">
+
+<!-- User's Posts Section -->
+<div class="container">
+
+    <h3 class="mb-4">{{ profile_user.username }}'s Posts</h3>
+
+    {% if posts %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for post in posts %}
+                {% if post.status == 'published' and post.verified == True %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm d-flex flex-column">
+                            {% if post.thumbnail %}
+                                <img src="{{ post.thumbnail.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'default-thumbnail.jpg' %}" class="card-img-top" alt="No image" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title">
+                                        <a href="{% url 'post_detail' post.id %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                                    </h5>
+                                </div>
+                                <p class="card-text text-muted mt-2">{{ post.created_at|date:"M d, Y" }}</p>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+
+                                    <!-- Like Button -->
+                                    <button class="btn {% if user in post.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %} like-btn" data-id="{{ post.id }}">
+                                        ❤️ <span class="like-count">{{ post.likes.count }}</span>
+                                    </button>
+
+                                    <!-- Bookmark Button -->
+                                    <button type="button" class="btn {% if post in user.profile.bookmarks.all %}btn-success{% else %}btn-outline-primary{% endif %} bookmark-btn" data-id="{{ post.id }}">
+                                        {% if post in user.profile.bookmarks.all %}
+                                            <i class="bi bi-bookmark-fill fs-5 text-white"></i>
+                                        {% else %}
+                                            <i class="bi bi-bookmark fs-5 text-primary"></i> 
+                                        {% endif %}
+                                    </button>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                {%endif%}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">This user hasn't posted anything yet.</p>
+    {% endif %}
+
+</div>
+
+
+<!-- Hide Update Button if Viewing Another User's Profile -->
+{% if not own_profile %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("update-profile-btn").style.display = "none";
+            document.getElementById("profile_picture").style.display = "none";
+            document.querySelectorAll("#profile-update-form input, #profile-update-form textarea").forEach(input => {
+                input.readOnly = true;
+            });
+        });
+    </script>
+{% endif %}
+
+
+<!-- Followers Modal -->
+<div class="modal fade" id="followersModal" tabindex="-1" aria-labelledby="followersModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="follow">Followers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for follower in followers %}
+                <p><a href="{% url 'user_profile' follower.username follower.id %}">{{ follower.username }}</a></p>
+                {% empty %}
+                <p class="text-muted">No followers yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Following Modal -->
+<div class="modal fade" id="followingModal" tabindex="-1" aria-labelledby="followingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="follow">Following</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% for followee in following %}
+                    <p>{% with followee.post_set.first as user_post %}
+                            {% if user_post %}
+                                <p><a href="{% url 'user_profile' followee.username user_post.id %}">{{ followee.username }}</a></p>
+                            {% else %}
+                                <p><a href="#">{{ followee.username }}</a> <span class="text-muted">(No posts yet)</span></p>
+                            {% endif %}
+                        {% endwith %}</p>
+                {% empty %}
+                    <p class="text-muted">Not following anyone.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
